@@ -1,31 +1,60 @@
+# Trying to create a sudoku generator
 import random
 
-board = [
-    [0,0,0],
-    [0,0,0],
-    [0,0,0]
-]
+numberIndex = [1,2,3,4,5,6,7,8,9]
+board = [[0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0]
+        ]         
 
-numList = [1,2,3,4,5,6,7,8,9]
-while True:
+startNumbers = 28
+tryNumbers = []
 
-    if numList == []:
-        break
+c=0
+while c < startNumbers:
+    num = random.randint(1,9)
+    if tryNumbers.count(num) <= 9:
+        tryNumbers.append(num)
+    c+=1
+
+n=0
+x=0
+y=0
+#add=1
+#lastNum = 0
+while n < 9:
+    # print("n is {}".format(n))
+    cellSelect = random.randint(0,2)
+    y+=cellSelect
+
+    if y > 8:
+        x+=1
+        y=cellSelect
+
+    tryNum = random.choice(tryNumbers)
+    while tryNum in board[x]:
+        # print("{} is already in row".format(tryNum))
+        tryNum = random.choice(tryNumbers)
+    
+    if board[x][y] == 0:
+        board[x][y] = tryNum
+        # print("Placed {}".format(tryNum))
+        del(tryNumbers[tryNum])
+        # lastNum = tryNum
+        y+=1
+        n+=1
     else:
-        num = random.choice(numList)
-        positionX = random.randint(0,2)
-        positionY = random.randint(0,2)
+        y+=1
+        #print("second break at {}".format(tryNum))
+        break
 
-        try:
-            if board[positionX][positionY] == 0:
-                board[positionX][positionY] = num
-                numList.remove(num)
-        except:
-            break
+
 
 for row in board:
     print(row)
-
-print("Chosen number: {}".format(num))
-print("Position: {},{}".format(positionX,positionY))
-print("Numlist: {}".format(numList))
