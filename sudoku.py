@@ -1,60 +1,137 @@
 # Trying to create a sudoku generator
 import random
 
-numberIndex = [1,2,3,4,5,6,7,8,9]
-board = [[0,0,0,0,0,0,0,0,0],
-         [0,0,0,0,0,0,0,0,0],
-         [0,0,0,0,0,0,0,0,0],
-         [0,0,0,0,0,0,0,0,0],
-         [0,0,0,0,0,0,0,0,0],
-         [0,0,0,0,0,0,0,0,0],
-         [0,0,0,0,0,0,0,0,0],
-         [0,0,0,0,0,0,0,0,0],
-         [0,0,0,0,0,0,0,0,0]
-        ]         
+def createBoard():
+    numberIndex = [1,2,3,4,5,6,7,8,9]
+    board = [[0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0]
+            ]
 
-startNumbers = 28
-tryNumbers = []
+    blocker = [[],[],[],[],[],[],[],[],[]]
 
-c=0
-while c < startNumbers:
-    num = random.randint(1,9)
-    if tryNumbers.count(num) <= 9:
-        tryNumbers.append(num)
-    c+=1
+    # Setting the amount of numbers to attempt placing into the board, should probably randomize this between a range
+    startNumbers = 60
+    tryNumbers = []
+    vertList=[]
 
-n=0
-x=0
-y=0
-#add=1
-#lastNum = 0
-while n < 9:
-    # print("n is {}".format(n))
-    cellSelect = random.randint(0,2)
-    y+=cellSelect
+    # Populate a list of numbers to try placing on the board
+    c=0
+    while c < startNumbers:
+        num = random.randint(1,9)
+        if tryNumbers.count(num) <= 9:
+            tryNumbers.append(num)
+        c+=1
 
-    if y > 8:
-        x+=1
-        y=cellSelect
+    n=0
+    x=0
+    y=0
+    #add=1
+    #lastNum = 0
+    cellCount=0
+    while x <= 9 or len(tryNumbers) > 0:
+        foundVertical = False
+        cellSelect = random.randint(0,2)
+        y+=cellSelect
 
-    tryNum = random.choice(tryNumbers)
-    while tryNum in board[x]:
-        # print("{} is already in row".format(tryNum))
+        if y >= 8 and x < 8:
+            x+=1
+            y=cellSelect
+
+        # Get a random number from our list of available nums
         tryNum = random.choice(tryNumbers)
-    
-    if board[x][y] == 0:
-        board[x][y] = tryNum
-        # print("Placed {}".format(tryNum))
-        del(tryNumbers[tryNum])
-        # lastNum = tryNum
-        y+=1
-        n+=1
-    else:
-        y+=1
-        #print("second break at {}".format(tryNum))
-        break
+        
+        # Check the horizontal for a matching value
+        if tryNum in board[x]:
+            #tryNum = random.choice(tryNumbers)
+            continue    
+        
+        # Chek the vertical
+        if x >= 1 and x <= 8 and y <= 8:
+            r=0
+            vertList=[]
+            while r < 9:
+                vert = board[r][y]
+                vertList.append(vert)
+                r+=1
+
+            if tryNum in vertList:
+                continue
 
 
+        # Hack to check neighboring cells for safety
+        # TODO: Fix this, make it better!
+        if (x == 0 or x == 1 or x == 2) and (y == 0 or y == 1 or y == 2):
+            if tryNum in blocker[0]:
+                continue
+        elif (x == 0 or x == 1 or x == 2) and (y == 3 or y == 4 or y == 5):
+            if tryNum in blocker[1]:
+                continue
+        elif (x == 0 or x == 1 or x == 2) and (y == 6 or y == 7 or y == 8):
+            if tryNum in blocker[2]:
+                continue
+        elif (x == 3 or x == 4 or x == 5) and (y == 0 or y == 1 or y == 2):
+            if tryNum in blocker[3]:
+                continue
+        elif (x == 3 or x == 4 or x == 5) and (y == 3 or y == 4 or y == 5):
+            if tryNum in blocker[4]:
+                continue
+        elif (x == 3 or x == 4 or x == 5) and (y == 6 or y == 7 or y == 8):
+            if tryNum in blocker[5]:
+                continue
+        elif (x == 6 or x == 7 or x == 8) and (y == 0 or y == 1 or y == 2):
+            if tryNum in blocker[6]:
+                continue
+        elif (x == 6 or x == 7 or x == 8)  and (y == 3 or y == 4 or y == 5):
+            if tryNum in blocker[7]:
+                continue
+        elif (x == 6 or x == 7 or x == 8)  and (y == 6 or y == 7 or y == 8):
+            if tryNum in blocker[8]:
+                continue
 
-for row in board:
+        # Check for an empty cell
+        # print(board[x][y])
+        if y <= 8 and board[x][y] == 0 and len(tryNumbers) >= 1:
+
+            board[x][y] = tryNum
+            del(tryNumbers[tryNum])
+
+            # Hack to populate blocker list with unsafe value lists for each 3x3 grid
+            # TODO: Clean this up, make it better.
+            if (x == 0 or x == 1 or x == 2) and (y == 0 or y == 1 or y == 2):
+                blocker[0].append(tryNum)
+            elif (x == 0 or x == 1 or x == 2) and (y == 3 or y == 4 or y == 5):
+                blocker[1].append(tryNum)
+            elif (x == 0 or x == 1 or x == 2) and (y == 6 or y == 7 or y == 8):
+                blocker[2].append(tryNum)
+            elif (x == 3 or x == 4 or x == 5) and (y == 0 or y == 1 or y == 2):
+                blocker[3].append(tryNum)
+            elif (x == 3 or x == 4 or x == 5) and (y == 3 or y == 4 or y == 5):
+                blocker[4].append(tryNum)
+            elif (x == 3 or x == 4 or x == 5) and (y == 6 or y == 7 or y == 8):
+                blocker[5].append(tryNum)
+            elif (x == 6 or x == 7 or x == 8) and (y == 0 or y == 1 or y == 2):
+                blocker[6].append(tryNum)
+            elif (x == 6 or x == 7 or x == 8) and (y == 3 or y == 4 or y == 5):
+                blocker[7].append(tryNum)
+            elif (x == 6 or x == 7 or x == 8) and (y == 6 or y == 7 or y == 8):
+                blocker[8].append(tryNum)
+
+            y+=1
+            n+=1
+        else:
+            y+=1
+            break
+
+    return(board)
+
+
+newBoard = createBoard()
+for row in newBoard:
     print(row)
